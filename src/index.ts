@@ -4,10 +4,12 @@ import { generateSummary } from "./invokegpt";
 import { loadSubtitle } from "./load";
 
 async function main() {
-    let { text: subs, channelname, title } = await loadSubtitle("https://www.youtube.com/watch?v=gWOXSh4-Iuc");
+    const youtubeLink = "https://www.youtube.com/watch?v=NlBjVJPkT6M"
+    const instruction = "Summarize the key takeaways of the video as bullet points.";
+
+    let { text: subs, channelname, title } = await loadSubtitle(youtubeLink);
     console.log(`Downloaded subtitles for video ${title} by ${channelname}. Characters:`, subs.length);
 
-    let instruction = "Summarize the 'ultimate timeline' discussed in the video in bullet points.";
     let response = await generateSummary(subs, title, channelname, instruction);
 
     console.log(response, response.length);

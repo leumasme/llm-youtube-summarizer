@@ -1,5 +1,5 @@
 {
-  "name": "typescript-template",
+  "name": "llm-youtube-summarizer",
   "version": "1.0.0",
   "description": "A Template for a generic TypeScript project",
   "main": "build/index.js",
