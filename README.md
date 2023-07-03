@@ -29,3 +29,4 @@ As always, LLMs may produce inaccurate output, especially for very long transcri
     - This way we could also support arbitrary-length videos, even longer than 16k tokens 
 - [ ] Add a CLI
   - Currently the youtube link and instruction are just hardcoded in `src/index.ts`
+  - See also: the `discord-bot` branch of this repo
