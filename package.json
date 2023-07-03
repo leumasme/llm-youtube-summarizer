@@ -19,6 +19,7 @@
     "node": ">=16.0.0"
   },
   "dependencies": {
+    "discord.js": "^14.11.0",
     "dotenv": "^16.3.1",
     "openai": "^3.3.0",
     "youtube-dl-exec": "^2.4.6"

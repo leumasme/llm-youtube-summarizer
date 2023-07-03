@@ -1,18 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { generateSummary } from "./invokegpt";
-import { loadSubtitle } from "./load";
+import { startDiscordBot } from "./discord";
 
-async function main() {
-    const youtubeLink = "https://www.youtube.com/watch?v=NlBjVJPkT6M"
-    const instruction = "Summarize the key takeaways of the video as bullet points.";
-
-    let { text: subs, channelname, title } = await loadSubtitle(youtubeLink);
-    console.log(`Downloaded subtitles for video ${title} by ${channelname}. Characters:`, subs.length);
-
-    let response = await generateSummary(subs, title, channelname, instruction);
-
-    console.log(response, response.length);
-}
-
-main();
+startDiscordBot();
