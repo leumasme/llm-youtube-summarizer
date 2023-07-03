@@ -1,3 +1,9 @@
+## This branch
+
+On this branch, I converted the script into a discord bot to make it easy and quick to use.  
+I will not host a public instance of the bot since I don't want to pay for the OpenAI for people I don't know.  
+If you want to host it, see the updated "Usage" 
+
 # LLM Youtube Summarizer
 
 - Youtube recently significantly improved the quality of the automatically generated captions
@@ -16,10 +22,10 @@ As always, LLMs may produce inaccurate output, especially for very long transcri
 - Clone the Repository
 - Install NodeJS if you haven't already
 - Run `npm i` in the project directory to install dependencies
-- Create a file called `.env` in the project directory with the content `OPENAI_API_KEY=paste_your_api_key_here`
-  - You can get an API key [here](https://platform.openai.com/account/api-keys)
+- Create a file called `.env` in the project directory with the content `OPENAI_API_KEY=paste_your_api_key_here` and `DISCORD_TOKEN=paste_your_discord_bot_token_here`
+  - You can get a Discord Bot token [here](https://discord.com/developers/applications)
+  - You can get an OpenAI API key [here](https://platform.openai.com/account/api-keys)
   - You should probably set a Usage limit on your OpenAI account so you dont accidentally spam their api somehow and rack up a bill.
-- Edit `src/index.ts` with your Youtube Link and Instruction (if you want to do something else than summarize)
 - Run `npm start` in the project directory and wait ~15 seconds. You should see the result
 
 ## TODO
@@ -27,5 +33,4 @@ As always, LLMs may produce inaccurate output, especially for very long transcri
   - It's ~50% cheaper but only supports 4k tokens instead of 16k
   - Either only use it for short videos or split long scripts up into parts and process them independently, then process the output of each of the parts to answer the User's prompt
     - This way we could also support arbitrary-length videos, even longer than 16k tokens 
-- [ ] Add a CLI
-  - Currently the youtube link and instruction are just hardcoded in `src/index.ts`
+- [X] ~~Add a CLI~~ Turn it into a discord bot!
