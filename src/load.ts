@@ -14,14 +14,15 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
         subFormat,
         output,
     }) as Record<string, any>; // Typings of ytdl are incomplete
-    
+
     
     if (result.subtitles[subLang] == null) {
-        if (Object.keys(result.subtitles).length > 0) {
+        let availableSubs = Object.keys(result.subtitles)
+            .filter(x => result.subtitles[x].some((e: any) => e.ext == subFormat));
+        if (availableSubs.length > 0) {
             // If there are manual subtitles in other languages available, we can use those
-            let availableSubs = Object.keys(result.subtitles);
-            subLang = availableSubs[0];
             console.warn(`Manual subtitles available, but not in the preferred language '${subLang}'`);
+            subLang = availableSubs[0];
             console.warn(`Choosing manual subs: '${subLang}'. Available: ${availableSubs.join(", ")}`);
 
             await ytdl(link, {
@@ -34,10 +35,11 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
         } else if (result.automatic_captions[subLang] == null) {
             // If there are no subtitles and no captions in the preferred language,
             // fall back to captions in other languages
-            if (Object.keys(result.automatic_captions).length > 1) {
+            let availableSubs = Object.keys(result.automatic_captions)
+            .filter(x => result.automatic_captions[x].some((e: any) => e.ext == subFormat));
+            if (availableSubs.length > 1) {
                 console.warn(`No Manual subtitles available, no automatic captions in the preferred language ${preferredLang} available.`)
-                
-                let availableSubs = Object.keys(result.automatic_captions);
+
                 // First, prefer a few common constant languages
                 let preferred = ["en", "de", "fr", "es", "it"];
                 let chosenSub = preferred.find(x => availableSubs.includes(x));
