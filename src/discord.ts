@@ -6,7 +6,8 @@ const client = new Client({
     intents: [
         GatewayIntentBits.Guilds,
         GatewayIntentBits.GuildMessages,
-        GatewayIntentBits.MessageContent
+        GatewayIntentBits.MessageContent,
+        GatewayIntentBits.DirectMessages,
     ],
 })
 
@@ -37,18 +38,21 @@ client.on(Events.MessageCreate, async (msg) => {
     let instruction = args.join(" ");
     if (instruction == "") instruction = defaultInstruction;
 
+    msg.react("👌")
+
     let { text: subs, channelname, title } = await loadSubtitle(url.toString());
     console.log(`Video ${url.toString()} : '${title}' by ${channelname} requested by ${msg.author.username}`);
 
-    let response: string;
     try {
-        response = await generateSummary(subs, title, channelname, instruction);
+        var { text, cost } = await generateSummary(subs, title, channelname, instruction);
     } catch (e) {
         if (e instanceof Error) {
             msg.reply("Error: " + e.message);
             return;
         } else throw e;
     }
+
+    let response = text + "\n" + `*This query cost ${Math.round(cost * 100) / 100}ct*`;
 
     msg.reply(response);
 });

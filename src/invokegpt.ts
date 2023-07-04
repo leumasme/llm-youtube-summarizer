@@ -37,5 +37,5 @@ async function invokeModel(messages: ChatCompletionRequestMessage[]) {
     console.log("Tokens used: Input", data.usage!.prompt_tokens, "Output", data.usage!.completion_tokens);
     console.log("Cost in cents:", Math.round(ctCost * 100) / 100);
 
-    return message.content;
+    return { text: message.content, cost: ctCost };
 }
