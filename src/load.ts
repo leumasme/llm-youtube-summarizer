@@ -10,6 +10,7 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
         writeSub: true,
         writeAutoSub: true,
         printJson: true,
+        noWarnings: true,
         subLang,
         subFormat,
         output,
@@ -28,6 +29,7 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
             await ytdl(link, {
                 skipDownload: true,
                 writeSub: true,
+                noWarnings: true,
                 subLang,
                 subFormat,
                 output,
@@ -56,6 +58,7 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
                 await ytdl(link, {
                     skipDownload: true,
                     writeAutoSub: true,
+                    noWarnings: true,
                     subLang,
                     subFormat,
                     output,
