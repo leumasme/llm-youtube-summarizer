@@ -1,4 +1,4 @@
-import { readFile, writeFile } from "fs/promises";
+import { readFile } from "fs/promises";
 import ytdl from "youtube-dl-exec";
 
 async function downloadSubtitle(link: string, preferredLang?: string) {
@@ -16,7 +16,7 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
         output,
     }) as Record<string, any>; // Typings of ytdl are incomplete
 
-    
+
     if (result.subtitles[subLang] == null) {
         let availableSubs = Object.keys(result.subtitles)
             .filter(x => result.subtitles[x].some((e: any) => e.ext == subFormat));
@@ -38,7 +38,7 @@ async function downloadSubtitle(link: string, preferredLang?: string) {
             // If there are no subtitles and no captions in the preferred language,
             // fall back to captions in other languages
             let availableSubs = Object.keys(result.automatic_captions)
-            .filter(x => result.automatic_captions[x].some((e: any) => e.ext == subFormat));
+                .filter(x => result.automatic_captions[x].some((e: any) => e.ext == subFormat));
             if (availableSubs.length > 1) {
                 console.warn(`No Manual subtitles available, no automatic captions in the preferred language ${preferredLang} available.`)
 
@@ -84,7 +84,7 @@ type J3Subtitle = {
     wsWinStyles: any[],
     events: {
         aAppend?: number,
-        dDurationMs: number,
+        dDurationMs?: number,
         id?: number,
         tStartMs: number,
         wpWinPosId?: number,
@@ -98,16 +98,60 @@ type J3Subtitle = {
     }[]
 }
 
-export async function loadSubtitle(link: string, lang?: string) {
+function msToTimestamp(ms: number) {
+    let sec = (Math.floor(ms / 1000) % 60).toString().padStart(2, "0");
+    let hour = (Math.floor(ms / 1000 / 60 / 60) % 60);
+    let min = (Math.floor(ms / 1000 / 60) % 60).toString();
+    if (hour > 0) min = min.padStart(2, "0");
+
+    return hour == 0 ? `[${min}:${sec}]` : `[${hour}:${min}:${sec}]`;
+}
+
+// By replacing some characters with their more common counterparts,
+// we can likely improve the quality of the generated text and save a few tokens.
+const charReplacements: Record<string, string> = {
+    "’": "'", // Right single quotation mark
+    " ": " ", // Non-breaking space
+    "…": "...", // Horizontal ellipsis
+}
+
+export async function loadSubtitle(link: string, timestampIntervalSec?: number, lang?: string) {
     const result = await downloadSubtitle(link, lang);
     // const filename = "sub.en.json3"; // TODO: remove or add caching
     const file = await readFile(result.filename, "utf-8");
     const data: J3Subtitle = JSON.parse(file.toString());
 
-    const text = data.events
-        .map(x => x.segs?.map(seg => seg.utf8).join("").trim())
-        .filter(x => x != null)
-        .join(" ")
+    // if (!timestampIntervalSec) {
+    //     text = data.events
+    //         .map(x => x.segs?.map(seg => seg.utf8).join("").trim())
+    //         .filter(x => x != null)
+    //         .join(" ")
+    // } else {
+
+    const timestampInterval = (timestampIntervalSec ?? Number.POSITIVE_INFINITY) * 1000;
+
+    let textParts: string[] = timestampIntervalSec ? ["[0:00]"] : [];
+    let lastTimestamp = 0;
+    for (let part of data.events) {
+        if (!part.segs) continue;
+        if ((lastTimestamp + timestampInterval) < part.tStartMs) {
+            // Add a timestamp roughly every {timestampInterval} ms
+            // It will always be a bit off, but that doesn't really matter.
+            // We might be able to make the timing more accurate for automatic subtitles
+            // using the segment timing which is usually word-level. 
+            textParts.push(msToTimestamp(part.tStartMs));
+            lastTimestamp = part.tStartMs;
+        }
+        let newText = part.segs.map(seg => seg.utf8).join("").trim();
+        if (newText.length == 0) continue;
+        textParts.push(part.segs.map(seg => seg.utf8).join("").trim());
+    }
+
+    let text = textParts.join(" ");
+
+    for (let [key, value] of Object.entries(charReplacements)) {
+        text = text.replaceAll(key, value);
+    }
 
     return { ...result, text };
 }
