@@ -1,6 +1,7 @@
 import { Client, Events, GatewayIntentBits } from "discord.js"
 import { loadSubtitle } from "./load";
 import { generateSummary } from "./invokegpt";
+import axios from "axios";
 
 const client = new Client({
     intents: [
@@ -81,9 +82,11 @@ client.on(Events.MessageCreate, async (msg) => {
     try {
         var { text, cost } = await generateSummary(subs, title, channelname, instruction);
     } catch (e) {
-        if (e instanceof Error) {
-            msg.reply("Error: " + e.message);
-            debugger;
+        if (e instanceof Error && axios.isAxiosError(e)) {
+            let message = e.response?.data?.error?.message ?? e.message;
+
+            msg.reply("Error: " + message);
+            console.log("Failed:", message);
             return;
         } else throw e;
     }
