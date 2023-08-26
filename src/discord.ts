@@ -46,7 +46,7 @@ client.on(Events.MessageCreate, async (msg) => {
     } else if (instructionArr.length == 0) {
         instructionArr = ["+"]
     }
-    
+
     let timestampInterval: number | undefined = undefined;
 
     let args = argsStr.slice(1).split("");
@@ -93,7 +93,22 @@ client.on(Events.MessageCreate, async (msg) => {
 
     let response = text + "\n" + `*This query cost ${Math.round(cost * 100) / 100}ct*`;
 
-    msg.reply(response);
+    try {
+        while (response != "") {
+            let section_end = 2000;
+
+            // While we are not at a whitespace, walk backwards to not split in the middle of a word
+            // But only walk up to 100 characters back for sanity
+            while (section_end > 1900 && response.charAt(section_end).trim() !== "") section_end--;
+            
+            let section = response.slice(0, section_end);
+            response = response.slice(section_end);
+            msg.reply(section);
+        }
+    } catch {
+        // Permission error, original message deleted, whatever
+        // Just dont crash
+    }
 });
 
 // client.on(Events.MessageCreate, async message => {
